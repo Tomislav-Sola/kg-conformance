@@ -6,11 +6,15 @@ Follows the global CLAUDE.md (user-level) baseline. Only the project map, change
 
 ## Map
 
-Planned top-level layout, filled in as Phase 1 lands the package:
+Top-level layout. Phase 1 landed the skeleton; the conformance and grounding internals fill in during Phases 4 and 5.
 
-- app/ : the FastAPI service. Conformance layer (rdflib, pyshacl), grounding layer (ClaudeClient), report assembler, request and response models.
-- tests/ : pytest suite.
-- Dockerfile : container build.
+- app/ : the FastAPI service.
+  - main.py : the app, GET /health and the POST /validate stub (dummy report).
+  - models.py : Pydantic request and response models (the v0.1 wire contract).
+  - config.py : Settings (grounding model name, input bounds, env key lookup).
+  - claude_client.py : the single ClaudeClient gateway. Unused seam in Phase 1, wired in Phase 5. The only place the Anthropic SDK is instantiated.
+- tests/ : pytest suite. conftest.py (TestClient fixture), test_health.py, test_validate_stub.py.
+- Dockerfile, .dockerignore : container build (python:3.12-slim, non-root, uvicorn on 0.0.0.0:8000).
 - pyproject.toml, .gitignore : setup.
 - PLAN.md : design record and phases.
 
@@ -18,6 +22,7 @@ Planned top-level layout, filled in as Phase 1 lands the package:
 
 Newest first.
 
+- 2026-05-30, Phase 1 (feat/skeleton): local walking skeleton. FastAPI with GET /health and a POST /validate stub returning a fixed dummy report against the real v0.1 contract. Pydantic models, Settings, ClaudeClient gateway as an unused seam (NotImplementedError). Dockerfile (python:3.12-slim, non-root, uvicorn on 0.0.0.0:8000) and .dockerignore. pytest scaffold (5 tests). Verified: pytest green, docker build and container smoke test (/health and /validate return 200) passing. Merged to main, branch deleted. No tag (v0.1.0 follows Phase 4).
 - Setup: scaffolding created (PLAN.md, this file, README, pyproject, .gitignore). No code yet. Design settled: RDF-native input, deploy-early ordering, BYOK plus canned grounding on the public demo.
 
 ## Additional guardrails (beyond the global baseline)
