@@ -1,0 +1,37 @@
+# Project metadata and dependencies.
+# Versions are intentionally left open here. Pin them after the first
+# `pip install -e ".[dev]"` and a green pytest, per the project workflow.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kg-conformance"
+version = "0.0.0"
+description = "Conformance and source-grounding checks for LLM-extracted knowledge graphs, served as an HTTP API."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "rdflib",
+    "pyshacl",
+    "anthropic",
+    "pydantic>=2",
+    "structlog",
+    "tenacity",
+]
+
+[project.optional-dependencies]
+observability = [
+    "azure-monitor-opentelemetry",
+    "opentelemetry-instrumentation-fastapi",
+]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
