@@ -72,7 +72,7 @@ One feature branch per phase, conventional commits, PR with self-merge, annotate
 
 1. feat/skeleton: setup and a local walking skeleton. .gitignore first, pyproject.toml, CLAUDE.md, FastAPI with /health and a /validate stub, Dockerfile, runs locally in the container. ClaudeClient gateway as an unused seam. pytest scaffold.
 2. Azure deploy (operational, CLI-only, no code branch): push the image to ghcr.io, deploy to Container Apps by hand (resource group, container app, ingress). Stub live. Verify scale-to-zero. No secret was created: the skeleton needs no key, and the Anthropic key is added as a Container Apps secret only in Phase 5 (grounding). This is the central operations phase, done by hand. Branch-per-phase applies to code phases only; this phase changed no application code, so it has no branch and no PR, only documentation committed directly to main (docs:). Done: see "Phase 2 deployment (live)" below for the live FQDN and the provisioning commands.
-3. feat/cicd: GitHub Actions, build, push, deploy on merge or tag.
+3. feat/cicd: GitHub Actions. On push to main (plus manual workflow_dispatch): test, build, push to ghcr (tagged with the commit SHA), update the Azure Container App via OIDC. Done.
 4. feat/shacl-conformance: real pyshacl validation, Turtle data plus shapes, example fixtures, tests. Tag v0.1.0.
 5. feat/grounding: the AI core. Tests. Tag v0.2.0.
 6. feat/observability: OpenTelemetry with the Azure Monitor exporter, custom metrics (latency, cost per request, conformance pass rate, grounding supported rate, token usage), sampling, a small dashboard. Tag v0.3.0.

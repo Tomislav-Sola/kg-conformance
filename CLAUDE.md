@@ -15,6 +15,7 @@ Top-level layout. Phase 1 landed the skeleton; the conformance and grounding int
   - claude_client.py : the single ClaudeClient gateway. Unused seam in Phase 1, wired in Phase 5. The only place the Anthropic SDK is instantiated.
 - tests/ : pytest suite. conftest.py (TestClient fixture), test_health.py, test_validate_stub.py.
 - Dockerfile, .dockerignore : container build (python:3.12-slim, non-root, uvicorn on 0.0.0.0:8000).
+- .github/workflows/deploy.yml : CI/CD. On push to main, test, build and push the image to ghcr (tagged with the commit SHA), then update the Azure Container App via OIDC.
 - pyproject.toml, .gitignore : setup.
 - PLAN.md : design record and phases.
 
@@ -22,6 +23,7 @@ Top-level layout. Phase 1 landed the skeleton; the conformance and grounding int
 
 Newest first.
 
+- 2026-05-31, Phase 3 (feat/cicd): CI/CD. GitHub Actions workflow (.github/workflows/deploy.yml) that, on push to main (plus manual workflow_dispatch), tests the app (Python 3.12, pip install of the package plus dev extras, pytest), builds and pushes the image to ghcr tagged with the commit SHA, then updates the live Azure Container App (ca-kg-conformance) to that image via OIDC (azure/login@v2, no client secret). The public image needs no registry credentials on the Azure side. pytest gates the deploy. Tag still deferred (v0.1.0 follows Phase 4).
 - 2026-05-31, Phase 2 (operational, no code branch): Azure deployment. The Phase 1 skeleton image went live on Azure Container Apps, provisioned by hand via the Azure CLI. No application code changed, so by the branch-per-phase rule (code phases only) there is no feat/azure-deploy branch and no PR; this entry is the only artifact and lands as a docs commit on main. Live at the FQDN recorded in PLAN.md (Phase 2 deployment). Scale-to-zero verified, /health and /docs reachable. Infrastructure stays up (idle cost near zero); teardown deferred to project end. No tag (v0.1.0 follows Phase 4).
 - 2026-05-30, Phase 1 (feat/skeleton): local walking skeleton. FastAPI with GET /health and a POST /validate stub returning a fixed dummy report against the real v0.1 contract. Pydantic models, Settings, ClaudeClient gateway as an unused seam (NotImplementedError). Dockerfile (python:3.12-slim, non-root, uvicorn on 0.0.0.0:8000) and .dockerignore. pytest scaffold (5 tests). Verified: pytest green, docker build and container smoke test (/health and /validate return 200) passing. Merged to main, branch deleted. No tag (v0.1.0 follows Phase 4).
 - Setup: scaffolding created (PLAN.md, this file, README, pyproject, .gitignore). No code yet. Design settled: RDF-native input, deploy-early ordering, BYOK plus canned grounding on the public demo.
