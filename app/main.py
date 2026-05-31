@@ -19,9 +19,11 @@ from fastapi import FastAPI, Header, HTTPException
 from app import observability
 from app.claude_client import GroundingAuthError, GroundingUnavailable
 from app.config import load_settings
+from app.demo import load_demo
 from app.grounding import ground_triples
 from app.models import (
     CostReport,
+    DemoResponse,
     GroundingReport,
     GroundingResult,
     GroundRequest,
@@ -141,3 +143,18 @@ def ground(
 
     observability.record_grounding(result.summary, cost)
     return GroundResponse(grounding=result, cost=cost)
+
+
+@app.get("/demo", response_model=DemoResponse)
+def demo() -> DemoResponse:
+    """A keyless, precomputed grounding example.
+
+    Returns the example input, a frozen grounding report from a real run, and
+    metadata marking it as precomputed. No key, no model call. Send the same
+    input to POST /ground with your own key to run it live.
+    """
+
+    try:
+        return load_demo()
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc

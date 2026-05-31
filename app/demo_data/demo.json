@@ -1,0 +1,43 @@
+{
+  "example": {
+    "source_text": "Ada Lovelace was a 19th-century English mathematician. She is regarded as the first computer programmer for her work on Charles Babbage's Analytical Engine. She was the daughter of the poet Lord Byron.",
+    "data": "@prefix ex: <http://example.org/> .\n\n# Supported by the source text:\nex:AdaLovelace ex:occupation ex:Mathematician .\nex:AdaLovelace ex:knownFor ex:ComputerProgramming .\nex:AdaLovelace ex:parent ex:LordByron .\n\n# Not supported: the source says she was English, it does not say she was born in France.\nex:AdaLovelace ex:bornIn ex:France .\n"
+  },
+  "grounding": {
+    "available": true,
+    "unavailable_reason": null,
+    "summary": {
+      "checked": 4,
+      "supported": 3,
+      "unsupported": 1,
+      "unclear": 0
+    },
+    "verdicts": [
+      {
+        "triple": "http://example.org/AdaLovelace http://example.org/bornIn http://example.org/France",
+        "verdict": "unsupported",
+        "justification": "The source text states Ada Lovelace was English, contradicting any claim that she was born in France."
+      },
+      {
+        "triple": "http://example.org/AdaLovelace http://example.org/knownFor http://example.org/ComputerProgramming",
+        "verdict": "supported",
+        "justification": "The source explicitly states she is 'regarded as the first computer programmer for her work on Charles Babbage's Analytical Engine.'"
+      },
+      {
+        "triple": "http://example.org/AdaLovelace http://example.org/occupation http://example.org/Mathematician",
+        "verdict": "supported",
+        "justification": "The source explicitly describes Ada Lovelace as 'a 19th-century English mathematician.'"
+      },
+      {
+        "triple": "http://example.org/AdaLovelace http://example.org/parent http://example.org/LordByron",
+        "verdict": "supported",
+        "justification": "The source explicitly states 'She was the daughter of the poet Lord Byron.'"
+      }
+    ]
+  },
+  "meta": {
+    "model": "claude-haiku-4-5-20251001",
+    "generated_at": "2026-05-31",
+    "note": "Precomputed example, served without a key. Send the same input to POST /ground with your own X-Anthropic-Key to run it live."
+  }
+}

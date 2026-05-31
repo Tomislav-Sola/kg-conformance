@@ -42,6 +42,9 @@ Conformance is open and free; grounding needs your own key.
 
 - Base URL: `https://ca-kg-conformance.jollydesert-dd392428.germanywestcentral.azurecontainerapps.io`
 - Interactive API (Swagger UI): append `/docs` to the base URL.
+- `GET /demo`: a keyless, precomputed grounding example, so you can see what
+  `/ground` produces without a key. Send the same input to `/ground` with your
+  own key to run it live.
 
 The app scales to zero, so the first request after an idle period pays a short
 cold start.
@@ -62,6 +65,9 @@ Returns the SHACL conformance report (`conforms` plus `violations`).
 Returns a verdict per triple with a justification, a verdict-count summary, and
 the token cost. The key is used only for that request and is never logged or
 stored.
+
+`GET /demo` (keyless) returns a precomputed grounding example: the example
+input, a frozen report from a real run, and metadata marking it as precomputed.
 
 `GET /health` for a liveness check.
 
