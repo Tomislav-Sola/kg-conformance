@@ -1,0 +1,9 @@
+@prefix ex: <http://example.org/> .
+
+# Supported by the source text:
+ex:AdaLovelace ex:occupation ex:Mathematician .
+ex:AdaLovelace ex:knownFor ex:ComputerProgramming .
+ex:AdaLovelace ex:parent ex:LordByron .
+
+# Not supported: the source says she was English, it does not say she was born in France.
+ex:AdaLovelace ex:bornIn ex:France .

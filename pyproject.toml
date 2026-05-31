@@ -33,5 +33,10 @@ dev = [
     "httpx",
 ]
 
+[tool.setuptools.package-data]
+# Ship the keyless /demo example with the installed package, so the container
+# (which runs from site-packages, not the source tree) can serve it.
+app = ["demo_data/*.json", "demo_data/*.ttl", "demo_data/*.txt"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

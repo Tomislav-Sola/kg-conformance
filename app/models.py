@@ -119,3 +119,29 @@ class GroundResponse(BaseModel):
 
     grounding: GroundingResult
     cost: CostReport
+
+
+# --- Demo (GET /demo), Phase: feat/demo ------------------------------------
+
+
+class DemoInput(BaseModel):
+    """The example input the demo grounding was computed from."""
+
+    source_text: str
+    data: str
+
+
+class DemoMeta(BaseModel):
+    """Markers that make clear this is a precomputed example, not a live run."""
+
+    model: str
+    generated_at: str
+    note: str
+
+
+class DemoResponse(BaseModel):
+    """The keyless /demo payload: example input, frozen report, and metadata."""
+
+    example: DemoInput
+    grounding: GroundingResult
+    meta: DemoMeta
