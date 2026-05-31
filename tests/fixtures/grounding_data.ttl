@@ -1,0 +1,7 @@
+@prefix ex: <http://example.org/> .
+
+# Supported by the source: Paris is the capital of France.
+ex:France ex:capital ex:Paris .
+
+# Not supported: the source says Germany's capital is Berlin, not Paris.
+ex:Germany ex:capital ex:Paris .

@@ -8,6 +8,8 @@ means the endpoint and tests do not have to change when the logic lands.
 
 from __future__ import annotations
 
+from enum import Enum
+
 from pydantic import BaseModel, Field
 
 
@@ -64,4 +66,56 @@ class ValidateResponse(BaseModel):
 
     conformance: ConformanceReport
     grounding: GroundingReport
+    cost: CostReport
+
+
+# --- Grounding (POST /ground), Phase 5 -------------------------------------
+
+
+class Verdict(str, Enum):
+    """Whether the source text backs a triple."""
+
+    supported = "supported"
+    unsupported = "unsupported"
+    unclear = "unclear"
+
+
+class GroundRequest(BaseModel):
+    """The /ground input: text to check against, and the triples to check."""
+
+    source_text: str = Field(description="The source text the triples should be grounded in.")
+    data: str = Field(description="The triples to check, as Turtle.")
+
+
+class TripleVerdict(BaseModel):
+    """One triple's grounding outcome."""
+
+    triple: str
+    verdict: Verdict
+    justification: str
+
+
+class GroundingSummary(BaseModel):
+    """Verdict counts for the request."""
+
+    checked: int = 0
+    supported: int = 0
+    unsupported: int = 0
+    unclear: int = 0
+
+
+class GroundingResult(BaseModel):
+    """The grounding outcome. `available` is False when the check degraded
+    (fail-open): the caller gets a 200 with no verdicts and a reason."""
+
+    available: bool = True
+    unavailable_reason: str | None = None
+    summary: GroundingSummary = Field(default_factory=GroundingSummary)
+    verdicts: list[TripleVerdict] = Field(default_factory=list)
+
+
+class GroundResponse(BaseModel):
+    """The response returned by /ground."""
+
+    grounding: GroundingResult
     cost: CostReport

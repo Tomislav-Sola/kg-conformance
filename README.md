@@ -17,22 +17,24 @@ It does not extract the graph for you. It consumes triples produced elsewhere (a
 
 ## API
 
-POST /validate
+POST /validate (keyless, free, deterministic)
 - data: Turtle, the extracted triples
 - shapes: Turtle, the SHACL shapes
-- source_text: optional, enables grounding
-- options: grounding on or off, and a cap on the number of triples checked
 
-The response contains the SHACL conformance report, the grounding result (supported, unsupported, uncertain), and the token and cost figures for the request.
+Returns the SHACL conformance report (conforms plus violations).
+
+POST /ground (the LLM check, bring your own key)
+- source_text: the text the triples should be grounded in
+- data: Turtle, the triples to check
+- X-Anthropic-Key header: your Anthropic key (BYOK)
+
+Returns a verdict per triple (supported, unsupported, unclear) with a short justification, a verdict-count summary, and the token cost. Fail-open: on a transient upstream error the grounding section comes back marked unavailable rather than failing the request.
 
 GET /health for a liveness check.
 
 ## Demo and keys
 
-The public demo runs conformance for free, since it needs no model. For grounding there are two paths:
-
-- Bring your own key: pass your own Anthropic key in a request header. Your key, your cost. The header key is never logged or stored.
-- Canned examples: a few prepared documents and graphs with cached grounding results, so you can see grounding work without a key.
+Conformance runs for free, since it needs no model. Grounding is bring-your-own-key: pass your Anthropic key in the X-Anthropic-Key header. Your key, your cost. The header key is used only for that request and is never logged or stored. A keyless demo with a few cached grounding examples is planned.
 
 ## Quickstart (local)
 
@@ -52,7 +54,7 @@ Python 3.12, FastAPI, rdflib and pyshacl for the deterministic conformance layer
 
 ## Status
 
-In active development, following a phased plan (see PLAN.md). The SHACL conformance layer is implemented and runs live on Azure Container Apps, deployed via GitHub Actions. The grounding layer (the LLM check) is not built yet; /validate currently returns conformance plus a grounding section marked unavailable. Expect rough edges.
+In active development, following a phased plan (see PLAN.md). Both layers are implemented and run live on Azure Container Apps, deployed via GitHub Actions: SHACL conformance (/validate, keyless) and source-grounding (/ground, BYOK). Still to come: a keyless cached-example demo and observability. Expect rough edges.
 
 ## License
 
