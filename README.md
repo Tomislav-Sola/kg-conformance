@@ -1,7 +1,5 @@
 # kg-conformance
 
-Working name, easy to change: edit the name in pyproject.toml and the title here.
-
 Conformance and source-grounding checks for LLM-extracted knowledge graphs, served as a small HTTP API.
 
 ## What it does
@@ -54,7 +52,7 @@ Python 3.12, FastAPI, rdflib and pyshacl for the deterministic conformance layer
 
 ## Status
 
-Early and in active development, following a phased plan (see PLAN.md). The deployment target is Azure Container Apps. Expect rough edges.
+In active development, following a phased plan (see PLAN.md). The SHACL conformance layer is implemented and runs live on Azure Container Apps, deployed via GitHub Actions. The grounding layer (the LLM check) is not built yet; /validate currently returns conformance plus a grounding section marked unavailable. Expect rough edges.
 
 ## License
 

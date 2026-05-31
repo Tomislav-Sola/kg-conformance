@@ -23,7 +23,11 @@ class Settings:
     # Set in exactly one place so it is not hardcoded across the codebase.
     grounding_model: str = "claude-haiku-4-5-20251001"
 
-    # Hard bounds on a single request. Enforced in Phase 5.
+    # Combined byte cap on the request inputs (data + shapes). Enforced in
+    # Phase 4 to protect the public scale-to-zero endpoint. Roughly 1 MB.
+    max_input_bytes: int = 1_000_000
+
+    # Hard bounds on the grounding call. Enforced in Phase 5.
     max_triples: int = 200
     max_source_chars: int = 50_000
 
@@ -38,6 +42,9 @@ def load_settings() -> Settings:
     defaults = Settings()
     return Settings(
         grounding_model=os.environ.get("GROUNDING_MODEL", defaults.grounding_model),
+        max_input_bytes=int(
+            os.environ.get("MAX_INPUT_BYTES", defaults.max_input_bytes)
+        ),
         max_triples=int(os.environ.get("MAX_TRIPLES", defaults.max_triples)),
         max_source_chars=int(
             os.environ.get("MAX_SOURCE_CHARS", defaults.max_source_chars)

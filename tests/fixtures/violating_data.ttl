@@ -1,0 +1,4 @@
+@prefix ex: <http://example.org/> .
+
+# Bob violates PersonShape: he is a Person but has no name (minCount 1).
+ex:bob a ex:Person .

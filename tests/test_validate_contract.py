@@ -1,17 +1,18 @@
-"""Tests for the /validate stub.
+"""Tests for the /validate wire contract.
 
-These pin the wire contract, not the (dummy) logic: a well-formed request is
-accepted and the response carries the expected report shape, and a malformed
-request is rejected by FastAPI validation. The dummy values are asserted only
-loosely so Phase 4 and 5 can fill in real reports without rewriting the tests.
+These pin the request/response shape rather than the validation logic (that is
+in test_conformance.py): a well-formed request is accepted and the response
+carries the conformance/grounding/cost structure, and a malformed request is
+rejected by FastAPI request validation. The data here uses an empty shapes
+graph, so validation conforms with no violations.
 """
 
 from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-# Minimal Turtle stand-ins. The stub does not parse them, so they only need to
-# be present; real RDF parsing arrives in Phase 4.
+# Valid Turtle. The shapes graph is empty (just a prefix), so any data graph
+# conforms: there are no constraints to violate.
 DATA_TTL = "@prefix ex: <http://example.org/> . ex:a ex:knows ex:b ."
 SHAPES_TTL = "@prefix sh: <http://www.w3.org/ns/shacl#> ."
 
@@ -30,6 +31,7 @@ def test_validate_accepts_valid_request(client: TestClient) -> None:
     body = response.json()
     assert set(body) == {"conformance", "grounding", "cost"}
     assert body["conformance"]["conforms"] is True
+    assert body["conformance"]["violations"] == []
     assert body["grounding"]["available"] is False
     assert body["cost"]["input_tokens"] == 0
 
