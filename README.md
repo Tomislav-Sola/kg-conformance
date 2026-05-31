@@ -114,6 +114,18 @@ paths are mocked, not exercised); measure it with:
 .venv/bin/pytest --cov=app
 ```
 
+## Observability
+
+<p align="center">
+  <img src="docs/dashboard.png" alt="Azure Application Insights workbook for kg-conformance, showing request latency next to the custom OpenTelemetry metrics from the service: validate conforms counts, grounding verdict counts, and grounding token usage" width="800" />
+</p>
+
+A live Azure Application Insights workbook, fed by the OpenTelemetry custom metrics the deployed service emits (validate conforms and violations, grounding verdict counts, grounding token usage, fail-open degradations) alongside request latency.
+
+The latency split is the interesting part: deterministic SHACL validation (`POST /validate`) runs in single-digit milliseconds, while the LLM grounding call (`POST /ground`) runs around three seconds, which is why grounding is a separate opt-in endpoint and the model is invoked only where it adds value. These figures come from a small manual traffic run that exercises the pipeline, not a benchmark or a load test, so the per-request latency shown is illustrative rather than a statistically meaningful percentile.
+
+The dashboard is reproducible: [`docs/workbook.arm.json`](docs/workbook.arm.json) is the workbook definition as code, a deployable ARM template, not just the screenshot above.
+
 ## Stack
 
 Python 3.12, FastAPI and uvicorn, `rdflib` and `pyshacl` for the deterministic
