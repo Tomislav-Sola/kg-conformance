@@ -71,13 +71,38 @@ Plus GET /health.
 One feature branch per phase, conventional commits, PR with self-merge, annotated tags at milestones.
 
 1. feat/skeleton: setup and a local walking skeleton. .gitignore first, pyproject.toml, CLAUDE.md, FastAPI with /health and a /validate stub, Dockerfile, runs locally in the container. ClaudeClient gateway as an unused seam. pytest scaffold.
-2. feat/azure-deploy: push the image to ghcr.io, deploy to Container Apps by hand (resource group, container app, ingress, secret placeholder). Stub live. Verify scale-to-zero. Practice teardown and redeploy. This is the central operations phase, done by hand.
+2. Azure deploy (operational, CLI-only, no code branch): push the image to ghcr.io, deploy to Container Apps by hand (resource group, container app, ingress). Stub live. Verify scale-to-zero. No secret was created: the skeleton needs no key, and the Anthropic key is added as a Container Apps secret only in Phase 5 (grounding). This is the central operations phase, done by hand. Branch-per-phase applies to code phases only; this phase changed no application code, so it has no branch and no PR, only documentation committed directly to main (docs:). Done: see "Phase 2 deployment (live)" below for the live FQDN and the provisioning commands.
 3. feat/cicd: GitHub Actions, build, push, deploy on merge or tag.
 4. feat/shacl-conformance: real pyshacl validation, Turtle data plus shapes, example fixtures, tests. Tag v0.1.0.
 5. feat/grounding: the AI core. Tests. Tag v0.2.0.
 6. feat/observability: OpenTelemetry with the Azure Monitor exporter, custom metrics (latency, cost per request, conformance pass rate, grounding supported rate, token usage), sampling, a small dashboard. Tag v0.3.0.
 
 Optional later: a minimal frontend for a clickable demo link.
+
+## Phase 2 deployment (live)
+
+The Phase 1 skeleton image is live on Azure Container Apps. These are the durable facts the Phase 3 CI builds on (it pushes new images to the same ghcr package and updates the same container app).
+
+- Resource group: `rg-kg-conformance`
+- Region: `germanywestcentral` (Germany West Central)
+- Container Apps environment: `cae-kg-conformance`
+- Container App: `ca-kg-conformance`
+- Image: `ghcr.io/tomislav-sola/kg-conformance:skeleton` (public package on ghcr)
+- Live FQDN: https://ca-kg-conformance.jollydesert-dd392428.germanywestcentral.azurecontainerapps.io
+- App config: external ingress, target port 8000, min-replicas 0 (scale-to-zero), max-replicas 1, cpu 0.25, memory 0.5Gi
+- Verified: `GET /health` returns `{"status":"ok"}`; `/docs` serves the FastAPI Swagger UI.
+- Infrastructure stays running. Idle cost is near zero via scale-to-zero; teardown (a single `az group delete --name rg-kg-conformance`) is deferred to project end.
+
+Provisioning commands, for the record (run once, by hand, via the Azure CLI):
+
+```
+az group create --name rg-kg-conformance --location germanywestcentral
+az extension add --name containerapp --upgrade
+az provider register --namespace Microsoft.App
+az provider register --namespace Microsoft.OperationalInsights
+az containerapp env create --name cae-kg-conformance --resource-group rg-kg-conformance --location germanywestcentral
+az containerapp create --name ca-kg-conformance --resource-group rg-kg-conformance --environment cae-kg-conformance --image ghcr.io/tomislav-sola/kg-conformance:skeleton --target-port 8000 --ingress external --min-replicas 0 --max-replicas 1 --cpu 0.25 --memory 0.5Gi
+```
 
 ## Stack
 
