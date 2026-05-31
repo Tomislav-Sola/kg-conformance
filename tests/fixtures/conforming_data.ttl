@@ -1,0 +1,5 @@
+@prefix ex: <http://example.org/> .
+
+# Alice satisfies PersonShape: exactly one string name.
+ex:alice a ex:Person ;
+    ex:name "Alice" .

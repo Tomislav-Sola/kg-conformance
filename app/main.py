@@ -1,31 +1,34 @@
-"""FastAPI application: the walking skeleton.
+"""FastAPI application.
 
-Phase 1 wires two endpoints into a running shell:
+Two endpoints:
 
 - GET /health  : liveness, no dependencies.
-- POST /validate: accepts the real request contract and returns a fixed dummy
-  report. No rdflib, no pyshacl, no model call yet. The conformance layer
-  (Phase 4) and the grounding layer (Phase 5) grow into this shell, replacing
-  the dummy with real reports while the wire contract stays put.
+- POST /validate: runs real SHACL conformance validation (Phase 4) on the
+  Turtle data and shapes and returns the report. Grounding stays unavailable
+  until the AI core lands in Phase 5; the ClaudeClient seam is not touched
+  here. The handler stays thin: parsing and validation live in app.validation.
 """
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
+from app.config import load_settings
 from app.models import (
-    ConformanceReport,
     CostReport,
     GroundingReport,
     ValidateRequest,
     ValidateResponse,
 )
+from app.validation import TurtleParseError, validate_conformance
 
 app = FastAPI(
     title="kg-conformance",
     description="Conformance and source-grounding checks for extracted knowledge graphs.",
-    version="0.0.0",
+    version="0.1.0",
 )
+
+settings = load_settings()
 
 
 @app.get("/health")
@@ -37,15 +40,32 @@ def health() -> dict[str, str]:
 
 @app.post("/validate", response_model=ValidateResponse)
 def validate(request: ValidateRequest) -> ValidateResponse:
-    """Validate a graph. Phase 1 stub: returns a fixed dummy report.
+    """Validate a graph against SHACL shapes.
 
-    The request is parsed and validated against the real contract, so callers
-    and tests already exercise the wire shape. The body is otherwise ignored
-    until the conformance and grounding layers land.
+    413 if the combined input exceeds the configured byte cap; 422 if either
+    the data or the shapes is not valid Turtle (the message says which).
+    Grounding is reported unavailable until Phase 5.
     """
 
+    input_bytes = len(request.data.encode("utf-8")) + len(
+        request.shapes.encode("utf-8")
+    )
+    if input_bytes > settings.max_input_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                f"Input too large: {input_bytes} bytes (data + shapes) exceeds "
+                f"the limit of {settings.max_input_bytes} bytes."
+            ),
+        )
+
+    try:
+        conformance = validate_conformance(request.data, request.shapes)
+    except TurtleParseError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     return ValidateResponse(
-        conformance=ConformanceReport(conforms=True, violations=[]),
+        conformance=conformance,
         grounding=GroundingReport(available=False),
         cost=CostReport(),
     )
