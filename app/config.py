@@ -40,6 +40,11 @@ class Settings:
     grounding_token_budget: int = 100_000
     grounding_max_retries: int = 3
 
+    # OpenTelemetry trace/log sampling ratio (0.0-1.0). Moderate by default to
+    # bound Application Insights ingestion. Only matters once a connection
+    # string is configured.
+    otel_sampling_ratio: float = 0.2
+
     # The environment fallback key. BYOK header takes precedence per request
     # and is never read from here. None means grounding needs a header key.
     anthropic_api_key: str | None = None
@@ -71,6 +76,9 @@ def load_settings() -> Settings:
         ),
         grounding_max_retries=int(
             os.environ.get("GROUNDING_MAX_RETRIES", defaults.grounding_max_retries)
+        ),
+        otel_sampling_ratio=float(
+            os.environ.get("OTEL_SAMPLING_RATIO", defaults.otel_sampling_ratio)
         ),
         anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"),
     )

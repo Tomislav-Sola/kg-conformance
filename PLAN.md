@@ -75,7 +75,7 @@ One feature branch per phase, conventional commits, PR with self-merge, annotate
 3. feat/cicd: GitHub Actions. On push to main (plus manual workflow_dispatch): test, build, push to ghcr (tagged with the commit SHA), update the Azure Container App via OIDC. Done.
 4. feat/shacl-conformance: real pyshacl validation, Turtle data plus shapes, example fixtures, tests. Tag v0.1.0.
 5. feat/grounding: the AI core. New POST /ground (separate from the keyless /validate): batched structured grounding via the ClaudeClient gateway (Haiku-class), BYOK by header, per-run token budget, fail-open. Verdicts supported/unsupported/unclear with justification. Tests mock the gateway. Tag v0.2.0. Done.
-6. feat/observability: OpenTelemetry with the Azure Monitor exporter, custom metrics (latency, cost per request, conformance pass rate, grounding supported rate, token usage), sampling, a small dashboard. Tag v0.3.0.
+6. feat/observability: OpenTelemetry to Azure Application Insights. FastAPI auto-instrumentation (traces, latency, no header capture), configurable sampling, and a focused metric set (validate conforms/violations, ground verdict counts, grounding token usage, fail-open degradations). Active key scrubbing (redaction filter plus no header capture) with tests over the OTel paths. Actions bumped to Node-24 majors. Export is off until the connection string is wired by hand post-deploy; the App Insights dashboard is a manual follow-up. Tag v0.3.0 only after telemetry is verified arriving.
 
 Optional later: a minimal frontend for a clickable demo link.
 

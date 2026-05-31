@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI, Header, HTTPException
 
+from app import observability
 from app.claude_client import GroundingAuthError, GroundingUnavailable
 from app.config import load_settings
 from app.grounding import ground_triples
@@ -33,10 +34,14 @@ from app.validation import TurtleParseError, validate_conformance
 app = FastAPI(
     title="kg-conformance",
     description="Conformance and source-grounding checks for extracted knowledge graphs.",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 settings = load_settings()
+
+# Install key redaction, instrument FastAPI, and export to Azure Monitor when a
+# connection string is set. Safe (and a no-op for export) without one.
+observability.configure_observability(app, settings)
 
 
 @app.get("/health")
@@ -72,6 +77,7 @@ def validate(request: ValidateRequest) -> ValidateResponse:
     except TurtleParseError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+    observability.record_validate(conformance.conforms, len(conformance.violations))
     return ValidateResponse(
         conformance=conformance,
         grounding=GroundingReport(available=False),
@@ -124,6 +130,7 @@ def ground(
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     except GroundingUnavailable:
         # Fail-open: valid key, transient/infra failure. Degrade, do not 500.
+        observability.record_grounding_degraded()
         return GroundResponse(
             grounding=GroundingResult(
                 available=False,
@@ -132,4 +139,5 @@ def ground(
             cost=CostReport(),
         )
 
+    observability.record_grounding(result.summary, cost)
     return GroundResponse(grounding=result, cost=cost)
