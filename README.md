@@ -54,7 +54,7 @@ Python 3.12, FastAPI, rdflib and pyshacl for the deterministic conformance layer
 
 ## Status
 
-In active development, following a phased plan (see PLAN.md). Both layers are implemented and run live on Azure Container Apps, deployed via GitHub Actions: SHACL conformance (/validate, keyless) and source-grounding (/ground, BYOK). Still to come: a keyless cached-example demo and observability. Expect rough edges.
+In active development, following a phased plan (see PLAN.md). Both layers are implemented and run live on Azure Container Apps, deployed via GitHub Actions: SHACL conformance (/validate, keyless) and source-grounding (/ground, BYOK). The app is instrumented with OpenTelemetry for Azure Application Insights (traces and a focused set of custom metrics); export turns on once a connection string is configured. Still to come: a keyless cached-example demo. Expect rough edges.
 
 ## License
 

@@ -8,10 +8,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install runtime dependencies. Copy the metadata and the package, then install.
+# Install runtime dependencies including the observability extra (OpenTelemetry
+# and the Azure Monitor exporter), so the image can export telemetry.
 COPY pyproject.toml README.md ./
 COPY app ./app
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir ".[observability]"
 
 # Run as a non-root user.
 RUN useradd --create-home --uid 10001 appuser
