@@ -6,6 +6,12 @@ name: deploy
 on:
   push:
     branches: [main]
+    # Doc-only changes do not affect the image, so they skip the deploy.
+    # workflow_dispatch still allows a manual run when needed.
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - "docs/**"
   workflow_dispatch:
 
 permissions:
