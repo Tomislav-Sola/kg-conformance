@@ -27,9 +27,18 @@ class Settings:
     # Phase 4 to protect the public scale-to-zero endpoint. Roughly 1 MB.
     max_input_bytes: int = 1_000_000
 
-    # Hard bounds on the grounding call. Enforced in Phase 5.
+    # Hard bounds on the grounding call. max_triples caps how many triples are
+    # checked; max_source_chars caps the source text sent to the model (the
+    # field that drives prompt size and cost). Both are enforced in app.grounding.
     max_triples: int = 200
     max_source_chars: int = 50_000
+    # How many triples per batched model call, the output-token cap per call,
+    # the per-run token budget (input + output), and the transient-error retry
+    # ceiling. Tunable via the environment.
+    grounding_batch_size: int = 50
+    grounding_max_output_tokens: int = 2048
+    grounding_token_budget: int = 100_000
+    grounding_max_retries: int = 3
 
     # The environment fallback key. BYOK header takes precedence per request
     # and is never read from here. None means grounding needs a header key.
@@ -48,6 +57,20 @@ def load_settings() -> Settings:
         max_triples=int(os.environ.get("MAX_TRIPLES", defaults.max_triples)),
         max_source_chars=int(
             os.environ.get("MAX_SOURCE_CHARS", defaults.max_source_chars)
+        ),
+        grounding_batch_size=int(
+            os.environ.get("GROUNDING_BATCH_SIZE", defaults.grounding_batch_size)
+        ),
+        grounding_max_output_tokens=int(
+            os.environ.get(
+                "GROUNDING_MAX_OUTPUT_TOKENS", defaults.grounding_max_output_tokens
+            )
+        ),
+        grounding_token_budget=int(
+            os.environ.get("GROUNDING_TOKEN_BUDGET", defaults.grounding_token_budget)
+        ),
+        grounding_max_retries=int(
+            os.environ.get("GROUNDING_MAX_RETRIES", defaults.grounding_max_retries)
         ),
         anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"),
     )
